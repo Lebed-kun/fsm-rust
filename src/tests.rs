@@ -4,9 +4,12 @@ use crate::macros;
 use crate::fsm::{FSM, FSMError};
 use crate::types::Transition;
 
-fn test_valid_string<State, Effect>(fsm: &FSM<State, Effect>, string: String) 
+fn test_valid_string<State, Effect, EffectorState>(
+    fsm: &mut FSM<State, Effect, EffectorState>, string: String
+) 
     where State: Eq + PartialEq + Copy + Hash + Debug,
-          Effect: Eq + PartialEq + Copy
+          Effect: Eq + PartialEq + Copy,
+          EffectorState: Copy
 {
     let result = fsm.proceed(&string);
 
@@ -20,14 +23,15 @@ fn test_valid_string<State, Effect>(fsm: &FSM<State, Effect>, string: String)
     assert!(result.is_ok());
 }
 
-fn test_invalid_string<State, Effect>(
-    fsm: &FSM<State, Effect>, 
+fn test_invalid_string<State, Effect, EffectorState>(
+    fsm: &mut FSM<State, Effect, EffectorState>, 
     string: String,
     index: usize,
     character: char
 ) 
     where State: Eq + PartialEq + Copy + Hash + Debug,
-          Effect: Eq + PartialEq + Copy
+          Effect: Eq + PartialEq + Copy,
+          EffectorState: Copy
 {
     let result = fsm.proceed(&string);
     assert!(result.is_err());
@@ -53,7 +57,7 @@ mod float_numbers {
     use std::fmt::Debug;
     use crate::macros;
     use crate::fsm::{FSM, FSMError};
-    use crate::types::{Transition, Effector};
+    use crate::types::Transition;
 
     use super::{test_invalid_string, test_valid_string};
 
@@ -66,7 +70,7 @@ mod float_numbers {
         ZERO,
     }
 
-    fn setup_fsm() -> FSM<State, u8> {
+    fn setup_fsm() -> FSM<State, u8, u8> {
         let fsm = FSM::new(
             State::INIT,
             map!(
@@ -172,66 +176,66 @@ mod float_numbers {
 
     #[test]
     fn it_validates_float_numbers() {
-        let fsm = setup_fsm();
+        let mut fsm = setup_fsm();
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("0")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("12345")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("+12345")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("-12345")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("12345.9876")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("-12345.9876")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("+12345.9876")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("0.12345")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("-0.12345")
         );
 
         test_valid_string(
-            &fsm,
+            &mut fsm,
             String::from("+0.12345")
         );
     }
 
     #[test]
     fn it_invalidates_incorrect_string() {
-        let fsm = setup_fsm();
+        let mut fsm = setup_fsm();
 
         // From INIT state
         test_invalid_string(
-            &fsm,
+            &mut fsm,
             String::from("w1234"),
             0,
             'w'
@@ -239,7 +243,7 @@ mod float_numbers {
 
         // From SIGN state
         test_invalid_string(
-            &fsm,
+            &mut fsm,
             String::from("++1234"),
             1,
             '+'
@@ -247,7 +251,7 @@ mod float_numbers {
 
         // From INTEGER_PART state
         test_invalid_string(
-            &fsm,
+            &mut fsm,
             String::from("1110b"),
             4,
             'b'
@@ -255,7 +259,7 @@ mod float_numbers {
 
         // From ZERO state
         test_invalid_string(
-            &fsm,
+            &mut fsm,
             String::from("001234"),
             1,
             '0'
@@ -263,7 +267,7 @@ mod float_numbers {
 
         // From FRACTION_PART state
         test_invalid_string(
-            &fsm,
+            &mut fsm,
             String::from("12..0126"),
             3,
             '.'
@@ -271,16 +275,13 @@ mod float_numbers {
     }
 }
 
-/*
 #[cfg(test)]
 mod count_words_and_numbers {
     use std::hash::Hash;
     use std::fmt::Debug;
-    use std::rc::Rc;
-    use std::cell::RefCell;
     use crate::macros;
     use crate::fsm::{FSM, FSMError};
-    use crate::types::Transition;
+    use crate::types::{Transition, Effector};
 
     use super::{test_invalid_string, test_valid_string};
 
@@ -304,35 +305,56 @@ mod count_words_and_numbers {
     fn fallback(_: char) -> bool {
         true
     }
+    struct Counter {
+        pub word_count: usize,
+        pub number_count: usize
+    }
 
-    type Count = Rc<RefCell<usize>>;
+    #[derive(PartialEq, Eq, Clone, Copy)]
+    enum Effect {
+        INCREMENT_WORD_COUNT,
+        INCREMENT_NUMBER_COUNT
+    }
 
-    fn setup_fsm_and_counters() -> (FSM<State, u8>, Count, Count) {
-        let word_counter = Rc::new(RefCell::new(0));
-        let number_counter = Rc::new(RefCell::new(0));
+    impl Counter {
+        fn increment_word_count(&mut self) {
+            self.word_count += 1;
+        }
 
-        let word_counter_in_closure = word_counter.clone();
-        let number_counter_in_closure = number_counter.clone();
+        fn increment_number_count(&mut self) {
+            self.number_count += 1;
+        }
+    }
 
-        let mut increment_words = 
-            Rc::new(RefCell::new(
-                move || {
-                    word_counter_in_closure.replace(
-                        word_counter_in_closure.clone().into_inner() + 1
-                    );
-                }
-            ))
-        ;
+    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    struct CounterData {
+        pub word_count: usize,
+        pub number_count: usize
+    }
 
-        let mut increment_numbers = 
-            Rc::new(RefCell::new(
-                move || {
-                    number_counter_in_closure.replace(
-                        number_counter_in_closure.clone().into_inner() + 1
-                    );
-                }
-            ))
-        ;
+    impl Effector<Effect, CounterData> for Counter {
+        fn dispatch(&mut self, effect: Effect) {
+            match effect {
+                Effect::INCREMENT_WORD_COUNT => self.increment_word_count(),
+                Effect::INCREMENT_NUMBER_COUNT => self.increment_number_count()
+            }
+        }
+
+        fn state(&self) -> CounterData {
+            CounterData {
+                word_count: self.word_count,
+                number_count: self.number_count
+            }
+        }
+    }
+
+    fn setup_fsm() -> FSM<State, Effect, CounterData> {
+        let counter = Box::new(
+            Counter {
+                word_count: 0,
+                number_count: 0
+            }
+        );
         
         let fsm = FSM::new(
             State::INIT,
@@ -341,16 +363,12 @@ mod count_words_and_numbers {
                     Transition::new(
                         State::WORD,
                         Some(is_letter),
-                        Some(Box::new(
-                            Rc::clone(&increment_words).into_inner()
-                        ))
+                        Some(Effect::INCREMENT_WORD_COUNT)
                     ),
                     Transition::new(
                         State::NUMBER_IP,
                         Some(is_digit),
-                        Some(Box::new(
-                            Rc::clone(&increment_numbers).into_inner()
-                        ))
+                        Some(Effect::INCREMENT_NUMBER_COUNT)
                     ),
                     Transition::new(
                         State::INIT,
@@ -367,9 +385,7 @@ mod count_words_and_numbers {
                     Transition::new(
                         State::NUMBER_IP,
                         Some(is_digit),
-                        Some(Box::new(
-                            Rc::clone(&increment_numbers).into_inner()
-                        ))
+                        Some(Effect::INCREMENT_NUMBER_COUNT)
                     ),
                     Transition::new(
                         State::INIT,
@@ -381,9 +397,7 @@ mod count_words_and_numbers {
                     Transition::new(
                         State::WORD,
                         Some(is_letter),
-                        Some(Box::new(
-                            Rc::clone(&increment_words).into_inner()
-                        ))
+                        Some(Effect::INCREMENT_WORD_COUNT)
                     ),
                     Transition::new(
                         State::NUMBER_IP,
@@ -407,9 +421,7 @@ mod count_words_and_numbers {
                     Transition::new(
                         State::WORD,
                         Some(is_letter),
-                        Some(Box::new(
-                            Rc::clone(&increment_words).into_inner()
-                        ))
+                        Some(Effect::INCREMENT_WORD_COUNT)
                     ),
                     Transition::new(
                         State::NUMBER_FP,
@@ -422,12 +434,12 @@ mod count_words_and_numbers {
                         None
                     )
                 ]
-            )
+            ),
+            Some(counter)
         ); 
 
         assert!(fsm.is_ok());
 
-        (fsm.unwrap(), word_counter.clone(), number_counter.clone())
+        fsm.unwrap()
     }
 }
-*/

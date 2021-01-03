@@ -3,13 +3,14 @@ use std::hash::Hash;
 use std::fmt::Debug;
 use crate::types::{Transition, Effector};
 
-pub struct FSM<State, Effect>
+pub struct FSM<State, Effect, EffectorState>
     where State: Eq + PartialEq + Copy + Hash,
-          Effect: Eq + PartialEq + Copy
+          Effect: Eq + PartialEq + Copy,
+          EffectorState: Copy
 {
     initial_state: State,
     transition_table: HashMap<State, Vec<Transition<State, Effect>>>,
-    effect_dispatcher: Option<Box<dyn Effector<Effect>>>
+    effect_dispatcher: Option<Box<dyn Effector<Effect, EffectorState>>>
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -25,14 +26,15 @@ pub enum FSMError<'a, State>
     }
 }
 
-impl<State, Effect> FSM<State, Effect> 
+impl<State, Effect, EffectorState> FSM<State, Effect, EffectorState> 
     where State: Eq + PartialEq + Copy + Hash + Debug,
-          Effect: Eq + PartialEq + Copy
+          Effect: Eq + PartialEq + Copy,
+          EffectorState: Copy
 {
     pub fn new<'a>(
         initial_state: State, 
         transition_table: HashMap<State, Vec<Transition<State, Effect>>>,
-        effect_dispatcher: Option<Box<dyn Effector<Effect>>>
+        effect_dispatcher: Option<Box<dyn Effector<Effect, EffectorState>>>
     ) -> Result<Self, FSMError<'a, State>> {
         if !transition_table.contains_key(&initial_state) {
             Err(FSMError::StateDoesNotExist(initial_state))
@@ -45,7 +47,7 @@ impl<State, Effect> FSM<State, Effect>
         }
     }
 
-    pub fn proceed<'a>(&self, string: &'a String) -> Result<(), FSMError<'a, State>> {
+    pub fn proceed<'a>(&mut self, string: &'a String) -> Result<(), FSMError<'a, State>> {
         let mut curr_state = self.initial_state;
         let mut char_id: usize = 0;
 
@@ -61,7 +63,7 @@ impl<State, Effect> FSM<State, Effect>
                                 accepted = true;
                                 
                                 if let (Some(effector), Some(effect)) = 
-                                    (self.effect_dispatcher.as_ref(), effect) 
+                                    (self.effect_dispatcher.as_mut(), effect) 
                                 {
                                     effector.dispatch(effect);
                                 }
@@ -90,5 +92,9 @@ impl<State, Effect> FSM<State, Effect>
         }
 
         Ok(())
+    }
+
+    pub fn effector(&self) -> &Option<Box<dyn Effector<Effect, EffectorState>>> {
+        &self.effect_dispatcher
     }
 }
