@@ -45,4 +45,5 @@ pub trait Effector<Effect, State>
 {
     fn dispatch(&mut self, effect: Effect);
     fn state(&self) -> State;
+    fn clear_state(&mut self);
 }

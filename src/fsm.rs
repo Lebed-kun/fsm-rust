@@ -94,7 +94,7 @@ impl<State, Effect, EffectorState> FSM<State, Effect, EffectorState>
         Ok(())
     }
 
-    pub fn effector(&self) -> &Option<Box<dyn Effector<Effect, EffectorState>>> {
-        &self.effect_dispatcher
+    pub fn effector(&mut self) -> &mut Option<Box<dyn Effector<Effect, EffectorState>>> {
+        &mut self.effect_dispatcher
     }
 }

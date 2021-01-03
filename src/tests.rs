@@ -346,6 +346,11 @@ mod count_words_and_numbers {
                 number_count: self.number_count
             }
         }
+
+        fn clear_state(&mut self) {
+            self.word_count = 0;
+            self.number_count = 0;
+        }
     }
 
     fn setup_fsm() -> FSM<State, Effect, CounterData> {
@@ -441,5 +446,73 @@ mod count_words_and_numbers {
         assert!(fsm.is_ok());
 
         fsm.unwrap()
+    }
+
+    #[test]
+    fn it_counts_numbers_and_words_correctly() {
+        let mut fsm = setup_fsm();
+
+        {
+            test_valid_string(
+                &mut fsm,
+                String::from("the123fox jumps,,,,")
+            );
+
+            let state = fsm.effector().as_ref().unwrap().state();
+
+            assert_eq!(
+                state.word_count,
+                3
+            );
+
+            assert_eq!(
+                state.number_count,
+                1
+            );
+
+            fsm.effector().as_mut().unwrap().clear_state();
+        }
+
+        {
+            test_valid_string(
+                &mut fsm,
+                String::from("!@#..,.?")
+            );
+
+            let state = fsm.effector().as_ref().unwrap().state();
+
+            assert_eq!(
+                state.word_count,
+                0
+            );
+
+            assert_eq!(
+                state.number_count,
+                0
+            );
+
+            fsm.effector().as_mut().unwrap().clear_state();
+        }
+
+        {
+            test_valid_string(
+                &mut fsm,
+                String::from("Add 1.5 pinches of salt and 2 cups of water!")
+            );
+
+            let state = fsm.effector().as_ref().unwrap().state();
+
+            assert_eq!(
+                state.word_count,
+                8
+            );
+
+            assert_eq!(
+                state.number_count,
+                2
+            );
+
+            fsm.effector().as_mut().unwrap().clear_state();
+        }
     }
 }
