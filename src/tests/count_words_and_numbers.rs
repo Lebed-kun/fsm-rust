@@ -25,9 +25,6 @@ use std::hash::Hash;
         ('0'..='9').contains(&ch)
     }
 
-    fn fallback(_: char) -> bool {
-        true
-    }
     struct Counter {
         pub word_count: usize,
         pub number_count: usize
@@ -100,7 +97,7 @@ use std::hash::Hash;
                     ),
                     Transition::new(
                         State::INIT,
-                        Some(fallback),
+                        None,
                         None
                     )
                 ],
@@ -117,7 +114,7 @@ use std::hash::Hash;
                     ),
                     Transition::new(
                         State::INIT,
-                        Some(fallback),
+                        None,
                         None
                     )
                 ],
@@ -141,7 +138,7 @@ use std::hash::Hash;
                     ),
                     Transition::new(
                         State::INIT,
-                        Some(fallback),
+                        None,
                         None
                     )
                 ],
@@ -158,7 +155,7 @@ use std::hash::Hash;
                     ),
                     Transition::new(
                         State::INIT,
-                        Some(fallback),
+                        None,
                         None
                     )
                 ]

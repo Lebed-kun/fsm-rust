@@ -33,8 +33,7 @@ impl<State, Effect> Transition<State, Effect>
                     (None, None)
                 }
             },
-            /// TODO: edit this branch to match definition of epsilon transition
-            None => (None, None)
+            None => (Some(self.to), self.effect)
         }
     }
 }
