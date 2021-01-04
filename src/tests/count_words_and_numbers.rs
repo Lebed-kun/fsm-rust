@@ -26,8 +26,8 @@ use std::hash::Hash;
     }
 
     struct Counter {
-        pub word_count: usize,
-        pub number_count: usize
+        word_count: usize,
+        number_count: usize
     }
 
     #[derive(PartialEq, Eq, Clone, Copy)]
@@ -44,43 +44,31 @@ use std::hash::Hash;
         fn increment_number_count(&mut self) {
             self.number_count += 1;
         }
+
+        fn word_count(&self) -> usize {
+            self.word_count
+        }
+
+        fn number_count(&self) -> usize {
+            self.number_count
+        }
+
+        fn clear_counts(&mut self) {
+            self.word_count = 0;
+            self.number_count = 0;
+        }
     }
 
-    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-    struct CounterData {
-        pub word_count: usize,
-        pub number_count: usize
-    }
-
-    impl Effector<Effect, CounterData> for Counter {
+    impl Effector<Effect> for Counter {
         fn dispatch(&mut self, effect: Effect) {
             match effect {
                 Effect::INCREMENT_WORD_COUNT => self.increment_word_count(),
                 Effect::INCREMENT_NUMBER_COUNT => self.increment_number_count()
             }
         }
-
-        fn state(&self) -> CounterData {
-            CounterData {
-                word_count: self.word_count,
-                number_count: self.number_count
-            }
-        }
-
-        fn clear_state(&mut self) {
-            self.word_count = 0;
-            self.number_count = 0;
-        }
     }
 
-    fn setup_fsm() -> FSM<State, Effect, CounterData> {
-        let counter = Box::new(
-            Counter {
-                word_count: 0,
-                number_count: 0
-            }
-        );
-        
+    fn setup_fsm() -> FSM<State, Effect> {
         let fsm = FSM::new(
             State::INIT,
             map!(
@@ -159,8 +147,7 @@ use std::hash::Hash;
                         None
                     )
                 ]
-            ),
-            Some(counter)
+            )
         ); 
 
         assert!(fsm.is_ok());
@@ -168,70 +155,90 @@ use std::hash::Hash;
         fsm.unwrap()
     }
 
+    fn setup_counter() -> Counter {
+        Counter {
+            word_count: 0,
+            number_count: 0
+        }
+    }
+
     #[test]
     fn it_counts_numbers_and_words_correctly() {
-        let mut fsm = setup_fsm();
+        let fsm = setup_fsm();
+        let mut counter = setup_counter();
 
         {
+            let string = String::from("the123fox jumps,,,,");
+
             test_valid_string(
-                &mut fsm,
-                String::from("the123fox jumps,,,,")
+                &fsm,
+                &string,
+                Some(&mut counter)
             );
 
-            let state = fsm.effector().as_ref().unwrap().state();
+            let word_count = counter.word_count();
+            let number_count = counter.number_count();
 
             assert_eq!(
-                state.word_count,
+                word_count,
                 3
             );
 
             assert_eq!(
-                state.number_count,
+                number_count,
                 1
             );
 
-            fsm.effector().as_mut().unwrap().clear_state();
+            counter.clear_counts();
         }
 
         {
+            let string = String::from("!@#..,.?");
+
             test_valid_string(
-                &mut fsm,
-                String::from("!@#..,.?")
+                &fsm,
+                &string,
+                Some(&mut counter)
             );
 
-            let state = fsm.effector().as_ref().unwrap().state();
+            let word_count = counter.word_count();
+            let number_count = counter.number_count();
 
             assert_eq!(
-                state.word_count,
+                word_count,
                 0
             );
 
             assert_eq!(
-                state.number_count,
+                number_count,
                 0
             );
 
-            fsm.effector().as_mut().unwrap().clear_state();
+            counter.clear_counts();
         }
 
         {
+            let string = String::from("Add 1.5 pinches of salt and 2 cups of water!");
+
             test_valid_string(
-                &mut fsm,
-                String::from("Add 1.5 pinches of salt and 2 cups of water!")
+                &fsm,
+                &string,
+                Some(&mut counter)
             );
 
-            let state = fsm.effector().as_ref().unwrap().state();
+            let word_count = counter.word_count();
+            let number_count = counter.number_count();
 
             assert_eq!(
-                state.word_count,
+                word_count,
                 8
             );
 
             assert_eq!(
-                state.number_count,
+                number_count,
                 2
             );
 
-            fsm.effector().as_mut().unwrap().clear_state();
+            counter.clear_counts();
         }
     }

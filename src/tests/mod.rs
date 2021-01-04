@@ -2,19 +2,20 @@ use std::hash::Hash;
 use std::fmt::Debug;
 use crate::macros;
 use crate::fsm::{FSM, FSMError};
-use crate::types::Transition;
+use crate::types::{Transition, Effector};
 
 mod float_numbers;
 mod count_words_and_numbers;
 
-fn test_valid_string<State, Effect, EffectorState>(
-    fsm: &mut FSM<State, Effect, EffectorState>, string: String
+fn test_valid_string<'a, State, Effect>(
+    fsm: &'a FSM<State, Effect>, 
+    string: &'a String,
+    effector: Option<&'a mut Effector<Effect>>
 ) 
     where State: Eq + PartialEq + Copy + Hash + Debug,
-          Effect: Eq + PartialEq + Copy,
-          EffectorState: Copy
+          Effect: Eq + PartialEq + Copy
 {
-    let result = fsm.proceed(&string);
+    let result = fsm.proceed(string, effector);
 
     if result.is_err() {
         println!(
@@ -26,17 +27,17 @@ fn test_valid_string<State, Effect, EffectorState>(
     assert!(result.is_ok());
 }
 
-fn test_invalid_string<State, Effect, EffectorState>(
-    fsm: &mut FSM<State, Effect, EffectorState>, 
-    string: String,
+fn test_invalid_string<'a, State, Effect>(
+    fsm: &'a FSM<State, Effect>, 
+    string: &'a String,
     index: usize,
-    character: char
+    character: char,
+    effector: Option<&'a mut Effector<Effect>>
 ) 
     where State: Eq + PartialEq + Copy + Hash + Debug,
-          Effect: Eq + PartialEq + Copy,
-          EffectorState: Copy
+          Effect: Eq + PartialEq + Copy
 {
-    let result = fsm.proceed(&string);
+    let result = fsm.proceed(string, effector);
     assert!(result.is_err());
 
     let error_from_res = result.unwrap_err();

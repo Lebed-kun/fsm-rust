@@ -38,11 +38,8 @@ impl<State, Effect> Transition<State, Effect>
     }
 }
 
-pub trait Effector<Effect, State> 
-    where Effect: Eq + PartialEq + Copy,
-          State: Copy
+pub trait Effector<Effect> 
+    where Effect: Eq + PartialEq + Copy
 {
     fn dispatch(&mut self, effect: Effect);
-    fn state(&self) -> State;
-    fn clear_state(&mut self);
 }

@@ -17,7 +17,7 @@ use std::hash::Hash;
         ZERO,
     }
 
-    fn setup_fsm() -> FSM<State, u8, u8> {
+    fn setup_fsm() -> FSM<State, u8> {
         let fsm = FSM::new(
             State::INIT,
             map!(
@@ -112,8 +112,7 @@ use std::hash::Hash;
                         None
                     )
                 ]
-            ),
-            None
+            )
         );
 
         assert!(fsm.is_ok());
@@ -123,100 +122,175 @@ use std::hash::Hash;
 
     #[test]
     fn it_validates_float_numbers() {
-        let mut fsm = setup_fsm();
+        let fsm = setup_fsm();
 
-        test_valid_string(
-            &mut fsm,
-            String::from("0")
-        );
+        {
+            let string = String::from("0");
+            
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
 
-        test_valid_string(
-            &mut fsm,
-            String::from("12345")
-        );
+        {
+            let string = String::from("12345");
 
-        test_valid_string(
-            &mut fsm,
-            String::from("+12345")
-        );
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
 
-        test_valid_string(
-            &mut fsm,
-            String::from("-12345")
-        );
+        {
+            let string = String::from("+12345");
 
-        test_valid_string(
-            &mut fsm,
-            String::from("12345.9876")
-        );
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
 
-        test_valid_string(
-            &mut fsm,
-            String::from("-12345.9876")
-        );
+        {
+            let string = String::from("-12345");
 
-        test_valid_string(
-            &mut fsm,
-            String::from("+12345.9876")
-        );
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
 
-        test_valid_string(
-            &mut fsm,
-            String::from("0.12345")
-        );
+        {
+            let string = String::from("12345.9876");
 
-        test_valid_string(
-            &mut fsm,
-            String::from("-0.12345")
-        );
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
 
-        test_valid_string(
-            &mut fsm,
-            String::from("+0.12345")
-        );
+        {
+            let string = String::from("-12345.9876");
+
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
+
+        {
+            let string = String::from("+12345.9876"); 
+
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
+
+        {
+            let string = String::from("0.12345");
+
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
+
+        {
+            let string = String::from("-0.12345");
+
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
+
+        {
+            let string = String::from("+0.12345");
+
+            test_valid_string(
+                &fsm,
+                &string,
+                None
+            );
+        }
     }
 
     #[test]
     fn it_invalidates_incorrect_string() {
-        let mut fsm = setup_fsm();
+        let fsm = setup_fsm();
 
         // From INIT state
-        test_invalid_string(
-            &mut fsm,
-            String::from("w1234"),
-            0,
-            'w'
-        );
+        {
+            let string = String::from("w1234");
+
+            test_invalid_string(
+                &fsm,
+                &string,
+                0,
+                'w',
+                None
+            );
+        }
 
         // From SIGN state
-        test_invalid_string(
-            &mut fsm,
-            String::from("++1234"),
-            1,
-            '+'
-        );
+        {
+            let string = String::from("++1234");
+
+            test_invalid_string(
+                &fsm,
+                &string,
+                1,
+                '+',
+                None
+            );
+        }
 
         // From INTEGER_PART state
-        test_invalid_string(
-            &mut fsm,
-            String::from("1110b"),
-            4,
-            'b'
-        );
+        {
+            let string = String::from("1110b");
+
+            test_invalid_string(
+                &fsm,
+                &string,
+                4,
+                'b',
+                None
+            );
+        }
 
         // From ZERO state
-        test_invalid_string(
-            &mut fsm,
-            String::from("001234"),
-            1,
-            '0'
-        );
+        {
+            let string = String::from("001234");
+
+            test_invalid_string(
+                &fsm,
+                &string,
+                1,
+                '0',
+                None
+            );
+        }
 
         // From FRACTION_PART state
-        test_invalid_string(
-            &mut fsm,
-            String::from("12..0126"),
-            3,
-            '.'
-        ); 
+        {
+            let string = String::from("12..0126");
+
+            test_invalid_string(
+                &fsm,
+                &string,
+                3,
+                '.',
+                None
+            );
+        }
     }
