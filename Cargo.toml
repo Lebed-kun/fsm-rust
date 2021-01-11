@@ -1,6 +1,6 @@
 [package]
 name = "fsm-rust-jb"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Jay Byte"]
 edition = "2018"
 repository = "https://github.com/Lebed-kun/fsm-rust"
