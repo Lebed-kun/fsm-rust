@@ -1,5 +1,5 @@
 [package]
-name = "fsm-rust"
+name = "fsm-rust-jb"
 version = "0.1.1"
 authors = ["Jay Byte"]
 edition = "2018"
