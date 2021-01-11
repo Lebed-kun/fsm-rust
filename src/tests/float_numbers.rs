@@ -6,7 +6,7 @@ use std::hash::Hash;
     use crate::fsm::{FSM, FSMError};
     use crate::types::Transition;
 
-    use super::{test_invalid_string, test_valid_string};
+    use super::utils::{test_valid_string, test_invalid_string};
 
     #[derive(Eq, PartialEq, Clone, Copy, Hash, Debug)]
     enum State {

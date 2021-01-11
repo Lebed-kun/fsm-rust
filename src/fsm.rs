@@ -48,6 +48,26 @@ impl<State, Effect> FSM<State, Effect>
         }
     }
 
+    pub fn merge_effects<'a>(
+        &mut self, 
+        effects_map: &HashMap<State, Vec<Effect>>
+    ) -> Result<(), FSMError<'a, State>> {
+        for (state, effects) in effects_map.iter() {
+            match self.transition_table.get_mut(state) {
+                Some(transitions) => {
+                    for i in 0..effects.len() {
+                        transitions[i].effect = Some(effects[i]);
+                    }
+                },
+                None => return Err(
+                    FSMError::StateDoesNotExist(*state)
+                )
+            }
+        }
+
+        Ok(())
+    }
+
     /// Runs some string through FSM to validate it (and apply some effects)
     /// - string: runnable string,
     /// - effector: module that mutates some data by effects

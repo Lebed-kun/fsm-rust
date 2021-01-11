@@ -8,12 +8,12 @@ pub struct Transition<State, Effect>
 {
     /// Predicate that validates current character of stream.
     /// If None then transition is unconditional (i.e. succeeds for every input character)
-    condition: Option<Predicate>,
+    pub condition: Option<Predicate>,
     /// Next state
-    to: State,
+    pub to: State,
     /// Side effect that is generated after successful validation of transition
     /// If None then no effect is generated
-    effect: Option<Effect>
+    pub effect: Option<Effect>
 }
 
 impl<State, Effect> Transition<State, Effect> 

@@ -6,7 +6,7 @@ use std::hash::Hash;
     use crate::fsm::{FSM, FSMError};
     use crate::types::{Transition, Effector, StreamData};
 
-    use super::{test_invalid_string, test_valid_string};
+    use super::utils::{test_invalid_string, test_valid_string, is_letter, is_digit};
 
     #[derive(Eq, PartialEq, Clone, Copy, Hash, Debug)]
     enum State {
@@ -14,15 +14,6 @@ use std::hash::Hash;
         WORD,
         NUMBER_IP,
         NUMBER_FP
-    }
-
-    fn is_letter(ch: char) -> bool {
-        ('A'..='Z').contains(&ch) ||
-            ('a'..='z').contains(&ch)
-    }
-
-    fn is_digit(ch: char) -> bool {
-        ('0'..='9').contains(&ch)
     }
 
     struct Counter {
