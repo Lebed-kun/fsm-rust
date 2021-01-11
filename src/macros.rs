@@ -1,4 +1,5 @@
 /// Simple macro for initialization of hashmap
+#[macro_export]
 macro_rules! map {
     ($($key:expr => $val:expr),* $(,)?) => {
         {
