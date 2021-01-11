@@ -2,7 +2,7 @@ use std::hash::Hash;
 use std::fmt::Debug;
 use crate::macros;
 use crate::fsm::{FSM, FSMError};
-use crate::types::{Transition, Effector};
+use crate::types::{Transition, Effector, StreamData};
 
 mod float_numbers;
 mod count_words_and_numbers;
@@ -45,7 +45,10 @@ fn test_invalid_string<'a, State, Effect>(
     assert!(
         matches!(
             error_from_res,
-            FSMError::NoValidTransition { index, character, .. }
+            FSMError::NoValidTransition { 
+                input_data: StreamData { index, character, .. }, 
+                .. 
+            }
         )
     );
 

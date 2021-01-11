@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::fmt::Debug;
-use crate::types::{Transition, Effector};
+use crate::types::{Transition, Effector, StreamData};
 
 /// Finite state machine with side effects (Mealy automata)
 pub struct FSM<State, Effect>
@@ -23,9 +23,7 @@ pub enum FSMError<'a, State>
     StateDoesNotExist(State),
     NoValidTransition {
         from: State,
-        string: &'a String,
-        index: usize,
-        character: char
+        input_data: StreamData<'a>
     }
 }
 
@@ -76,7 +74,11 @@ impl<State, Effect> FSM<State, Effect>
                                 if let (Some(effector), Some(effect)) = 
                                     (effector.as_mut(), effect) 
                                 {
-                                    effector.dispatch(effect);    
+                                    effector.dispatch(effect, StreamData {
+                                        string,
+                                        index: char_id,
+                                        character: ch
+                                    });    
                                 }
 
                                 break;
@@ -88,9 +90,11 @@ impl<State, Effect> FSM<State, Effect>
                     if !accepted {
                         return Err(FSMError::NoValidTransition {
                             from: curr_state,
-                            string,
-                            index: char_id,
-                            character: ch
+                            input_data: StreamData {
+                                string,
+                                index: char_id,
+                                character: ch
+                            }
                         });
                     }
                 },

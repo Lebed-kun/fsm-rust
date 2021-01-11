@@ -48,11 +48,24 @@ impl<State, Effect> Transition<State, Effect>
     }
 }
 
+/// Information for debugging and effects
+#[derive(Copy, Clone, Debug)]
+pub struct StreamData<'a> {
+    /// Reference to input string
+    pub string: &'a String,
+    /// Current character position in input string
+    pub index: usize,
+    /// Current character in input string
+    pub character: char
+}
+
 /// Generic type for executor of side effects 
 /// applied to some persistent data
 pub trait Effector<Effect> 
     where Effect: Eq + PartialEq + Copy
 {
     /// Applies side effect to mutate some data
-    fn dispatch(&mut self, effect: Effect);
+    /// - effect: side effect,
+    /// - input_data: additional dependencies for effects
+    fn dispatch(&mut self, effect: Effect, input_data: StreamData);
 }

@@ -4,7 +4,7 @@ use std::hash::Hash;
     use std::fmt::Debug;
     use crate::macros;
     use crate::fsm::{FSM, FSMError};
-    use crate::types::{Transition, Effector};
+    use crate::types::{Transition, Effector, StreamData};
 
     use super::{test_invalid_string, test_valid_string};
 
@@ -60,7 +60,7 @@ use std::hash::Hash;
     }
 
     impl Effector<Effect> for Counter {
-        fn dispatch(&mut self, effect: Effect) {
+        fn dispatch(&mut self, effect: Effect, _data: StreamData) {
             match effect {
                 Effect::INCREMENT_WORD_COUNT => self.increment_word_count(),
                 Effect::INCREMENT_NUMBER_COUNT => self.increment_number_count()
