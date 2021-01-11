@@ -14,7 +14,7 @@ pub enum State {
     NUMBER_FP
 }
 
-pub fn init_fsm<Effect>() -> FSM<State, Effect> 
+pub fn init_fsm<Effect>(effects_map: Option<&HashMap<State, Vec<Option<Effect>>>>) -> FSM<State, Effect> 
     where Effect: Eq + PartialEq + Copy
 {
     let fsm = FSM::new(
@@ -100,5 +100,13 @@ pub fn init_fsm<Effect>() -> FSM<State, Effect>
 
     assert!(fsm.is_ok());
 
-    fsm.unwrap()
+    let mut fsm = fsm.unwrap();
+
+    if let Some(effects_map) = effects_map {
+        assert!(
+            fsm.merge_effects(effects_map).is_ok()
+        );
+    }
+
+    fsm
 }

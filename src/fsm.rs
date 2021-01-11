@@ -48,15 +48,18 @@ impl<State, Effect> FSM<State, Effect>
         }
     }
 
+    /// Merges effects into existing fsm for its states
+    /// aligned to order of transitions for each state
+    /// - effects_map: map from state to ordered list of effects
     pub fn merge_effects<'a>(
         &mut self, 
-        effects_map: &HashMap<State, Vec<Effect>>
+        effects_map: &HashMap<State, Vec<Option<Effect>>>
     ) -> Result<(), FSMError<'a, State>> {
         for (state, effects) in effects_map.iter() {
             match self.transition_table.get_mut(state) {
                 Some(transitions) => {
                     for i in 0..effects.len() {
-                        transitions[i].effect = Some(effects[i]);
+                        transitions[i].effect = effects[i];
                     }
                 },
                 None => return Err(

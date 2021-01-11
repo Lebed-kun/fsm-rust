@@ -2,19 +2,13 @@
 
 use std::hash::Hash;
     use std::fmt::Debug;
+    use std::collections::HashMap;
     use crate::macros;
     use crate::fsm::{FSM, FSMError};
     use crate::types::{Transition, Effector, StreamData};
 
     use super::utils::{test_invalid_string, test_valid_string, is_letter, is_digit};
-
-    #[derive(Eq, PartialEq, Clone, Copy, Hash, Debug)]
-    enum State {
-        INIT,
-        WORD,
-        NUMBER_IP,
-        NUMBER_FP
-    }
+    use super::automatas::words_and_numbers::*;
 
     struct Counter {
         word_count: usize,
@@ -59,91 +53,13 @@ use std::hash::Hash;
         }
     }
 
-    fn setup_fsm() -> FSM<State, Effect> {
-        let fsm = FSM::new(
-            State::INIT,
-            map!(
-                State::INIT => vec![
-                    Transition::new(
-                        State::WORD,
-                        Some(is_letter),
-                        Some(Effect::INCREMENT_WORD_COUNT)
-                    ),
-                    Transition::new(
-                        State::NUMBER_IP,
-                        Some(is_digit),
-                        Some(Effect::INCREMENT_NUMBER_COUNT)
-                    ),
-                    Transition::new(
-                        State::INIT,
-                        None,
-                        None
-                    )
-                ],
-                State::WORD => vec![
-                    Transition::new(
-                        State::WORD,
-                        Some(is_letter),
-                        None
-                    ),
-                    Transition::new(
-                        State::NUMBER_IP,
-                        Some(is_digit),
-                        Some(Effect::INCREMENT_NUMBER_COUNT)
-                    ),
-                    Transition::new(
-                        State::INIT,
-                        None,
-                        None
-                    )
-                ],
-                State::NUMBER_IP => vec![
-                    Transition::new(
-                        State::WORD,
-                        Some(is_letter),
-                        Some(Effect::INCREMENT_WORD_COUNT)
-                    ),
-                    Transition::new(
-                        State::NUMBER_IP,
-                        Some(is_digit),
-                        None
-                    ),
-                    Transition::new(
-                        State::NUMBER_FP,
-                        Some(|ch| {
-                            ch == '.'
-                        }),
-                        None
-                    ),
-                    Transition::new(
-                        State::INIT,
-                        None,
-                        None
-                    )
-                ],
-                State::NUMBER_FP => vec![
-                    Transition::new(
-                        State::WORD,
-                        Some(is_letter),
-                        Some(Effect::INCREMENT_WORD_COUNT)
-                    ),
-                    Transition::new(
-                        State::NUMBER_FP,
-                        Some(is_digit),
-                        None
-                    ),
-                    Transition::new(
-                        State::INIT,
-                        None,
-                        None
-                    )
-                ]
-            )
-        ); 
-
-        assert!(fsm.is_ok());
-
-        fsm.unwrap()
+    fn setup_effects() -> HashMap<State, Vec<Option<Effect>>> {
+        map!(
+            State::INIT => vec![Some(Effect::INCREMENT_WORD_COUNT), Some(Effect::INCREMENT_NUMBER_COUNT)],
+            State::WORD => vec![None, Some(Effect::INCREMENT_NUMBER_COUNT)],
+            State::NUMBER_IP => vec![Some(Effect::INCREMENT_WORD_COUNT)],
+            State::NUMBER_FP => vec![Some(Effect::INCREMENT_WORD_COUNT)]
+        )
     }
 
     fn setup_counter() -> Counter {
@@ -155,7 +71,8 @@ use std::hash::Hash;
 
     #[test]
     fn it_counts_numbers_and_words_correctly() {
-        let fsm = setup_fsm();
+        let effects = setup_effects();
+        let fsm = init_fsm(Some(&effects));
         let mut counter = setup_counter();
 
         {
