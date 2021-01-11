@@ -1,9 +1,8 @@
 use std::hash::Hash;
 use std::collections::HashMap;
 use std::fmt::Debug;
-use crate::macros;
-use crate::fsm::{FSM, FSMError};
-use crate::types::{Transition, Effector, StreamData};
+use crate::fsm::FSM;
+use crate::types::Transition;
 use super::super::utils::{is_digit, is_letter};
 
 #[derive(Eq, PartialEq, Clone, Copy, Hash, Debug)]

@@ -4,10 +4,9 @@ use std::hash::Hash;
     use std::fmt::Debug;
     use std::collections::HashMap;
     use crate::macros;
-    use crate::fsm::{FSM, FSMError};
-    use crate::types::{Transition, Effector, StreamData};
+    use crate::types::{Effector, StreamData};
 
-    use super::utils::{test_invalid_string, test_valid_string, is_letter, is_digit};
+    use super::utils::test_valid_string;
     use super::automatas::words_and_numbers::*;
 
     struct Counter {

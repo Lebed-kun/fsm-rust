@@ -1,13 +1,12 @@
 use std::hash::Hash;
 use std::fmt::Debug;
-use crate::macros;
 use crate::fsm::{FSM, FSMError};
-use crate::types::{Transition, Effector, StreamData};
+use crate::types::{Effector, StreamData};
 
 pub fn test_valid_string<'a, State, Effect>(
     fsm: &'a FSM<State, Effect>, 
     string: &'a String,
-    effector: Option<&'a mut Effector<Effect>>
+    effector: Option<&'a mut dyn Effector<Effect>>
 ) 
     where State: Eq + PartialEq + Copy + Hash + Debug,
           Effect: Eq + PartialEq + Copy
@@ -29,7 +28,7 @@ pub fn test_invalid_string<'a, State, Effect>(
     string: &'a String,
     index: usize,
     character: char,
-    effector: Option<&'a mut Effector<Effect>>
+    effector: Option<&'a mut dyn Effector<Effect>>
 ) 
     where State: Eq + PartialEq + Copy + Hash + Debug,
           Effect: Eq + PartialEq + Copy
