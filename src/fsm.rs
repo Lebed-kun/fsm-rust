@@ -3,14 +3,19 @@ use std::hash::Hash;
 use std::fmt::Debug;
 use crate::types::{Transition, Effector};
 
+/// Finite state machine with side effects (Mealy automata)
 pub struct FSM<State, Effect>
     where State: Eq + PartialEq + Copy + Hash,
           Effect: Eq + PartialEq + Copy,
 {
+    /// State at beginning of running through stream
     initial_state: State,
+    /// Transition graph that connects every state of FSM
+    /// to some next states by transitions
     transition_table: HashMap<State, Vec<Transition<State, Effect>>>,
 }
 
+/// Error that occurs during initialization or running with FSM
 #[derive(Copy, Clone, Debug)]
 pub enum FSMError<'a, State> 
     where State: Eq + PartialEq + Copy + Debug
@@ -28,6 +33,9 @@ impl<State, Effect> FSM<State, Effect>
     where State: Eq + PartialEq + Copy + Hash + Debug,
           Effect: Eq + PartialEq + Copy,
 {
+    /// Creates new instance of FSM
+    /// - initial_state: starting state,
+    /// - transition_table: transition graph
     pub fn new<'a>(
         initial_state: State, 
         transition_table: HashMap<State, Vec<Transition<State, Effect>>>
@@ -42,6 +50,9 @@ impl<State, Effect> FSM<State, Effect>
         }
     }
 
+    /// Runs some string through FSM to validate it (and apply some effects)
+    /// - string: runnable string,
+    /// - effector: module that mutates some data by effects
     pub fn proceed<'a>(
         &self, 
         string: &'a String,

@@ -1,14 +1,18 @@
+/// Input character validator
 pub type Predicate = fn(ch: char) -> bool;
 
-/// Optional condition is for introducing epsilon (unconditional + without character read) transitions
-/// which also require accepting states property and
-/// are not the same as unconditional (fallback) transitions
+/// Transition to next state which is validated by condition
 pub struct Transition<State, Effect> 
     where State: Eq + PartialEq + Copy,
           Effect: Eq + PartialEq + Copy
 {
+    /// Predicate that validates current character of stream.
+    /// If None then transition is unconditional (i.e. succeeds for every input character)
     condition: Option<Predicate>,
+    /// Next state
     to: State,
+    /// Side effect that is generated after successful validation of transition
+    /// If None then no effect is generated
     effect: Option<Effect>
 }
 
@@ -16,6 +20,10 @@ impl<State, Effect> Transition<State, Effect>
     where State: Eq + PartialEq + Copy,
           Effect: Eq + PartialEq + Copy
 {
+    /// Creates new transition
+    /// - to: next state,
+    /// - condition: predicate for character,
+    /// - effect: side effect
     pub fn new(to: State, condition: Option<Predicate>, effect: Option<Effect>) -> Self {
         Self {
             to,
@@ -24,6 +32,8 @@ impl<State, Effect> Transition<State, Effect>
         }
     }
 
+    /// Matches next state and side effect for current character
+    /// - ch: current character (of stream) 
     pub fn transit(&self, ch: char) -> (Option<State>, Option<Effect>) {
         match self.condition {
             Some(condition) => {
@@ -38,8 +48,11 @@ impl<State, Effect> Transition<State, Effect>
     }
 }
 
+/// Generic type for executor of side effects 
+/// applied to some persistent data
 pub trait Effector<Effect> 
     where Effect: Eq + PartialEq + Copy
 {
+    /// Applies side effect to mutate some data
     fn dispatch(&mut self, effect: Effect);
 }
