@@ -1,12 +1,12 @@
 [package]
 name = "fsm-rust-jb"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Jay Byte"]
 edition = "2018"
 repository = "https://github.com/Lebed-kun/fsm-rust"
 description = "Simple FSM (with effects, like Mealy machine) implementation in Rust"
 license = "MIT OR Apache-2.0"
-keywords = ["fsm", "algorithms", "formal-language", "parsing"]
+keywords = ["fsm", "algorithms", "formal-language", "parsing", "Mealey"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
