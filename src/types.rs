@@ -19,7 +19,7 @@ pub struct Transition<State, Effect>
 }
 
 /// Pair of states ("from", "to")
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct StatesConnection<State> 
     where State: Eq + PartialEq + Copy + Hash,
 {

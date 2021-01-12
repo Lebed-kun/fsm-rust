@@ -18,9 +18,10 @@ pub struct FSM<State, Effect>
 /// Error that occurs during initialization or running with FSM
 #[derive(Copy, Clone, Debug)]
 pub enum FSMError<'a, State> 
-    where State: Eq + PartialEq + Copy + Debug
+    where State: Eq + PartialEq + Copy + Hash + Debug
 {
     StateDoesNotExist(State),
+    TransDoesNotExist(StatesConnection<State>),
     NoValidTransition {
         from: State,
         input_data: StreamData<'a>
@@ -56,6 +57,10 @@ impl<State, Effect> FSM<State, Effect>
         effects_map: &HashMap<StatesConnection<State>, Vec<Effect>>
     ) -> Result<(), FSMError<'a, State>> {
         for (conn, effects) in effects_map.iter() {
+            if !self.transition_table.contains_key(&conn.to) {
+                return Err(FSMError::StateDoesNotExist(conn.to));
+            }
+
             match self.transition_table.get_mut(&conn.from) {
                 Some(transitions) => {
                     let mut eff_counter: usize = 0;
@@ -65,7 +70,11 @@ impl<State, Effect> FSM<State, Effect>
                             trans.effect = Some(effects[eff_counter]);
                             eff_counter += 1;
                         }
-                    } 
+                    }
+                    
+                    if eff_counter == 0 {
+                        return Err(FSMError::TransDoesNotExist(*conn));
+                    }
                 },
                 None => return Err(
                     FSMError::StateDoesNotExist(conn.from)
