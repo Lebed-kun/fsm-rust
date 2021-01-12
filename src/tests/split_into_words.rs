@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use std::collections::HashMap;
-use crate::types::{Effector, StreamData};
+use crate::types::{Effector, StreamData, StatesConnection};
 use crate::macros;
 use super::utils::test_valid_string;
 use super::automatas::words_and_numbers::*;
@@ -99,30 +99,11 @@ impl Effector<Effect> for Store {
     }
 }
 
-/*
-fn setup_effects() -> HashMap<State, Vec<Option<Effect>>> {
+fn setup_effects() -> HashMap<StatesConnection<State>, Vec<Option<Effect>>> {
     map!(
-        State::INIT => vec![
-            Some((BasicEffect::PushToWordbuffer, None)),
-            Some((BasicEffect::PushToNumbuffer { is_fpd: false }, None))
-        ],
-        State::WORD => vec![
-            Some((BasicEffect::PushToWordbuffer, None)),
-            Some((
-                BasicEffect::AcceptWordbuffer,
-                Some(BasicEffect::PushToNumbuffer { is_fpd: false })
-            )),
-            Some((
-                BasicEffect::AcceptWordbuffer,
-                None
-            )),
-        ],
-        State::NUMBER_IP => vec![
-            Some(
-                BasicEffect::AcceptNumbuffer,
-                Some(BasicEffect::PushToWordbuffer)
-            ),
-        ]
+        StatesConnection {
+            from: State::INIT,
+            to: State::WORD
+        } => vec![]
     )
 }
-*/

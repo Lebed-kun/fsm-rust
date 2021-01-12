@@ -14,7 +14,7 @@ pub enum State {
 }
 
 pub fn init_fsm<Effect>(
-    effects_map: Option<&HashMap<StatesConnection<State>, Vec<Option<Effect>>>>
+    effects_map: Option<&HashMap<StatesConnection<State>, Vec<Effect>>>
 ) -> FSM<State, Effect> 
     where Effect: Eq + PartialEq + Copy
 {

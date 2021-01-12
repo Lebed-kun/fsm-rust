@@ -48,32 +48,32 @@
         }
     }
 
-    fn setup_effects() -> HashMap<StatesConnection<State>, Vec<Option<Effect>>> {
+    fn setup_effects() -> HashMap<StatesConnection<State>, Vec<Effect>> {
         map!(
             StatesConnection { 
                 from: State::INIT,
                 to: State::WORD
-            } => vec![Some(Effect::INCREMENT_WORD_COUNT)],
+            } => vec![Effect::INCREMENT_WORD_COUNT],
 
             StatesConnection {
                 from: State::INIT,
                 to: State::NUMBER_IP
-            } => vec![Some(Effect::INCREMENT_NUMBER_COUNT)],
+            } => vec![Effect::INCREMENT_NUMBER_COUNT],
 
             StatesConnection {
                 from: State::WORD,
                 to: State::NUMBER_IP
-            } => vec![Some(Effect::INCREMENT_NUMBER_COUNT)],
+            } => vec![Effect::INCREMENT_NUMBER_COUNT],
 
             StatesConnection {
                 from: State::NUMBER_IP,
                 to: State::WORD
-            } => vec![Some(Effect::INCREMENT_WORD_COUNT)],
+            } => vec![Effect::INCREMENT_WORD_COUNT],
 
             StatesConnection {
                 from: State::NUMBER_FP,
                 to: State::WORD
-            } => vec![Some(Effect::INCREMENT_WORD_COUNT)],
+            } => vec![Effect::INCREMENT_WORD_COUNT],
         )
     }
 

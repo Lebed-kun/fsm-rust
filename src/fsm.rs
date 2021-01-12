@@ -53,7 +53,7 @@ impl<State, Effect> FSM<State, Effect>
     /// - effects_map: map from pair of states ("from", "to") to ordered list of effects
     pub fn merge_effects<'a>(
         &mut self, 
-        effects_map: &HashMap<StatesConnection<State>, Vec<Option<Effect>>>
+        effects_map: &HashMap<StatesConnection<State>, Vec<Effect>>
     ) -> Result<(), FSMError<'a, State>> {
         for (conn, effects) in effects_map.iter() {
             match self.transition_table.get_mut(&conn.from) {
@@ -62,7 +62,7 @@ impl<State, Effect> FSM<State, Effect>
 
                     for trans in transitions.iter_mut() {
                         if conn.to == trans.to {
-                            trans.effect = effects[eff_counter];
+                            trans.effect = Some(effects[eff_counter]);
                             eff_counter += 1;
                         }
                     } 
