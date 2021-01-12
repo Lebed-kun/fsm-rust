@@ -254,11 +254,11 @@ fn it_works_correctly() {
         let words = storage.words();
         let sum = storage.numbers_sum();
 
-        let empty_str: Vec<String> = Vec::new();
+        let empty_vec: Vec<String> = Vec::new();
 
         assert_eq!(
             words.clone(),
-            empty_str
+            empty_vec
         );
 
         assert!((sum - 0.0).abs() <= f64::EPSILON);
