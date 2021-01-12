@@ -111,7 +111,8 @@ use std::hash::Hash;
                         None
                     )
                 ]
-            )
+            ),
+            None
         );
 
         assert!(fsm.is_ok());

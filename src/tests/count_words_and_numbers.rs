@@ -87,7 +87,7 @@
     #[test]
     fn it_counts_numbers_and_words_correctly() {
         let effects = setup_effects();
-        let fsm = init_fsm(Some(&effects));
+        let fsm = init_fsm(Some(&effects), None);
         let mut counter = setup_counter();
 
         {

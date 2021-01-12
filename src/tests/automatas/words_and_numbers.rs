@@ -14,7 +14,8 @@ pub enum State {
 }
 
 pub fn init_fsm<Effect>(
-    effects_map: Option<&HashMap<StatesConnection<State>, Vec<Effect>>>
+    effects_map: Option<&HashMap<StatesConnection<State>, Vec<Effect>>>,
+    post_effect: Option<Effect>
 ) -> FSM<State, Effect> 
     where Effect: Eq + PartialEq + Copy
 {
@@ -96,7 +97,8 @@ pub fn init_fsm<Effect>(
                     None
                 )
             ]
-        )
+        ),
+        post_effect
     ); 
 
     assert!(fsm.is_ok());
