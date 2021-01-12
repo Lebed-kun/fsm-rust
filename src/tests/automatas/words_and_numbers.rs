@@ -2,7 +2,7 @@ use std::hash::Hash;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use crate::fsm::FSM;
-use crate::types::Transition;
+use crate::types::{Transition, StatesConnection};
 use super::super::utils::{is_digit, is_letter};
 
 #[derive(Eq, PartialEq, Clone, Copy, Hash, Debug)]
@@ -13,7 +13,9 @@ pub enum State {
     NUMBER_FP
 }
 
-pub fn init_fsm<Effect>(effects_map: Option<&HashMap<State, Vec<Option<Effect>>>>) -> FSM<State, Effect> 
+pub fn init_fsm<Effect>(
+    effects_map: Option<&HashMap<StatesConnection<State>, Vec<Option<Effect>>>>
+) -> FSM<State, Effect> 
     where Effect: Eq + PartialEq + Copy
 {
     let fsm = FSM::new(

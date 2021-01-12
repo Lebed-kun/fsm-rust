@@ -4,5 +4,5 @@ pub mod fsm;
 pub mod macros;
 mod tests;
 
-pub use types::{Predicate, Transition, Effector};
+pub use types::{Predicate, Transition, Effector, StatesConnection};
 pub use fsm::{FSM, FSMError};

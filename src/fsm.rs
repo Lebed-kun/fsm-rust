@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::fmt::Debug;
-use crate::types::{Transition, Effector, StreamData};
+use crate::types::{Transition, Effector, StreamData, StatesConnection};
 
 /// Finite state machine with side effects (Mealy automata)
 pub struct FSM<State, Effect>
@@ -50,20 +50,25 @@ impl<State, Effect> FSM<State, Effect>
 
     /// Merges effects into existing fsm for its states
     /// aligned to order of transitions for each state
-    /// - effects_map: map from state to ordered list of effects
+    /// - effects_map: map from pair of states ("from", "to") to ordered list of effects
     pub fn merge_effects<'a>(
         &mut self, 
-        effects_map: &HashMap<State, Vec<Option<Effect>>>
+        effects_map: &HashMap<StatesConnection<State>, Vec<Option<Effect>>>
     ) -> Result<(), FSMError<'a, State>> {
-        for (state, effects) in effects_map.iter() {
-            match self.transition_table.get_mut(state) {
+        for (conn, effects) in effects_map.iter() {
+            match self.transition_table.get_mut(&conn.from) {
                 Some(transitions) => {
-                    for i in 0..effects.len() {
-                        transitions[i].effect = effects[i];
-                    }
+                    let mut eff_counter: usize = 0;
+
+                    for trans in transitions.iter_mut() {
+                        if conn.to == trans.to {
+                            trans.effect = effects[eff_counter];
+                            eff_counter += 1;
+                        }
+                    } 
                 },
                 None => return Err(
-                    FSMError::StateDoesNotExist(*state)
+                    FSMError::StateDoesNotExist(conn.from)
                 )
             }
         }

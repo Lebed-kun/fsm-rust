@@ -1,6 +1,6 @@
 #![cfg(test)]
     use std::collections::HashMap;
-    use crate::types::{Effector, StreamData};
+    use crate::types::{Effector, StreamData, StatesConnection};
 
     use super::utils::test_valid_string;
     use super::automatas::words_and_numbers::*;
@@ -48,12 +48,32 @@
         }
     }
 
-    fn setup_effects() -> HashMap<State, Vec<Option<Effect>>> {
+    fn setup_effects() -> HashMap<StatesConnection<State>, Vec<Option<Effect>>> {
         map!(
-            State::INIT => vec![Some(Effect::INCREMENT_WORD_COUNT), Some(Effect::INCREMENT_NUMBER_COUNT)],
-            State::WORD => vec![None, Some(Effect::INCREMENT_NUMBER_COUNT)],
-            State::NUMBER_IP => vec![Some(Effect::INCREMENT_WORD_COUNT)],
-            State::NUMBER_FP => vec![Some(Effect::INCREMENT_WORD_COUNT)]
+            StatesConnection { 
+                from: State::INIT,
+                to: State::WORD
+            } => vec![Some(Effect::INCREMENT_WORD_COUNT)],
+
+            StatesConnection {
+                from: State::INIT,
+                to: State::NUMBER_IP
+            } => vec![Some(Effect::INCREMENT_NUMBER_COUNT)],
+
+            StatesConnection {
+                from: State::WORD,
+                to: State::NUMBER_IP
+            } => vec![Some(Effect::INCREMENT_NUMBER_COUNT)],
+
+            StatesConnection {
+                from: State::NUMBER_IP,
+                to: State::WORD
+            } => vec![Some(Effect::INCREMENT_WORD_COUNT)],
+
+            StatesConnection {
+                from: State::NUMBER_FP,
+                to: State::WORD
+            } => vec![Some(Effect::INCREMENT_WORD_COUNT)],
         )
     }
 

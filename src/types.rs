@@ -1,3 +1,5 @@
+use std::hash::Hash;
+
 /// Input character validator
 pub type Predicate = fn(ch: char) -> bool;
 
@@ -14,6 +16,15 @@ pub struct Transition<State, Effect>
     /// Side effect that is generated after successful validation of transition
     /// If None then no effect is generated
     pub effect: Option<Effect>
+}
+
+/// Pair of states ("from", "to")
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+pub struct StatesConnection<State> 
+    where State: Eq + PartialEq + Copy + Hash,
+{
+    pub from: State,
+    pub to: State
 }
 
 impl<State, Effect> Transition<State, Effect> 
