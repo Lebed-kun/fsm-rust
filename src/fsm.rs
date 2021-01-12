@@ -6,7 +6,7 @@ use crate::types::{Transition, Effector, StreamData};
 /// Finite state machine with side effects (Mealy automata)
 pub struct FSM<State, Effect>
     where State: Eq + PartialEq + Copy + Hash,
-          Effect: Eq + PartialEq + Copy,
+          Effect: Copy,
 {
     /// State at beginning of running through stream
     initial_state: State,
@@ -29,7 +29,7 @@ pub enum FSMError<'a, State>
 
 impl<State, Effect> FSM<State, Effect> 
     where State: Eq + PartialEq + Copy + Hash + Debug,
-          Effect: Eq + PartialEq + Copy,
+          Effect: Copy,
 {
     /// Creates new instance of FSM
     /// - initial_state: starting state,

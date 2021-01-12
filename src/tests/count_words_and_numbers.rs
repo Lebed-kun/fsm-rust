@@ -1,9 +1,5 @@
 #![cfg(test)]
-
-use std::hash::Hash;
-    use std::fmt::Debug;
     use std::collections::HashMap;
-    use crate::macros;
     use crate::types::{Effector, StreamData};
 
     use super::utils::test_valid_string;

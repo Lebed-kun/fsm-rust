@@ -2,8 +2,7 @@
 
 use std::hash::Hash;
     use std::fmt::Debug;
-    use crate::macros;
-    use crate::fsm::{FSM, FSMError};
+    use crate::fsm::FSM;
     use crate::types::Transition;
 
     use super::utils::{test_valid_string, test_invalid_string};

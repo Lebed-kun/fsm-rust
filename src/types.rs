@@ -4,7 +4,7 @@ pub type Predicate = fn(ch: char) -> bool;
 /// Transition to next state which is validated by condition
 pub struct Transition<State, Effect> 
     where State: Eq + PartialEq + Copy,
-          Effect: Eq + PartialEq + Copy
+          Effect: Copy
 {
     /// Predicate that validates current character of stream.
     /// If None then transition is unconditional (i.e. succeeds for every input character)
@@ -18,7 +18,7 @@ pub struct Transition<State, Effect>
 
 impl<State, Effect> Transition<State, Effect> 
     where State: Eq + PartialEq + Copy,
-          Effect: Eq + PartialEq + Copy
+          Effect: Copy
 {
     /// Creates new transition
     /// - to: next state,
@@ -62,7 +62,7 @@ pub struct StreamData<'a> {
 /// Generic type for executor of side effects 
 /// applied to some persistent data
 pub trait Effector<Effect> 
-    where Effect: Eq + PartialEq + Copy
+    where Effect: Copy
 {
     /// Applies side effect to mutate some data
     /// - effect: side effect,
